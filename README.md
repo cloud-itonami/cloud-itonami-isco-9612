@@ -15,7 +15,7 @@ operating records instead of renting a closed workforce-management SaaS.
 (`refusesorter.governor`), following the itonami actor pattern
 (ADR-2607121000): `:intake -> :advise -> :govern -> :decide -+-> :commit
 (:ok?) +-> :request-approval (:escalate?, human-in-the-loop interrupt) +->
-:hold (:hard?)`. 25 tests / 55 assertions green (`clojure -M:test`). HARD
+:hold (:hard?)`. 25 tests / 55 assertions green (`kbb -M:test`). HARD
 invariants (always hold, never overridable): worker
 provenance, facility provenance, no-actuation (`:effect` must be
 `:propose`), a closed op-allowlist (`:log-work-record`,
