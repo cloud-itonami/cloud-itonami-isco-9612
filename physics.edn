@@ -1,0 +1,34 @@
+;; What this vertical's robot physically does, declared for
+;; kotoba.robotics.process (kotoba-lang/robotics). `kbb -M:physics` runs it.
+;;
+;; README "Robotics premise": a facility scheduling/logistics coordination
+;; robot performs crew scheduling, sorting-log/throughput logging and
+;; protective-equipment/consumables procurement coordination for a
+;; refuse-sorting-facility crew (ISCO 9612). It never sorts waste itself. The
+;; sorting line's physical work it logs and supplies: a picking robot pulling
+;; items off the belt at the line's pick rate, and the baler's tie wire
+;; (a consumable it orders) holding the sorted bale.
+;;
+;; Every number without a cited source is marked `estimate` in its :basis.
+;; Replacing an estimate with a sourced value is this bot's growth work.
+{:physics/schema "itonami.physical-ai.spec.v1"
+ :repo "cloud-itonami/cloud-itonami-isco-9612"
+ :cases
+ [{:id :belt-pick
+   :kind :manipulator
+   :procedure "picking arm pulls a 1 kg item off the sorting belt into the chute; move time varied with the pick rate"
+   :params {:l1-m 0.45 :l2-m 0.40 :m1-kg 3.0 :m2-kg 2.0 :payload-kg 1.0
+            :from [0.60 -0.10] :to [0.20 0.40] :steps 400}
+   :sweep {:param :duration-s :values [0.3 0.4 0.5 0.7 1.0]}
+   :quantity :peak-tau1-nm
+   :limit {:max 60.0 :basis "estimate: peak shoulder torque of a lightweight sorting-line picking arm"}
+   :boundary {:lo 0.15 :hi 2.0}}
+  {:id :bale-tie-wire
+   :kind :material
+   :procedure "tensile load on one 3 mm annealed low-carbon baling wire (7.07 mm2) as the compressed bale springs back"
+   :params {:length-m 0.10 :area-m2 7.07e-6 :youngs-modulus-pa 200.0e9 :yield-stress-pa 350.0e6
+            :hardening-pa 1.0e9 :density-kg-m3 7850.0}
+   :sweep {:param :max-force-n :values [1000.0 1500.0 2000.0 2500.0 3000.0]}
+   :quantity :final-strain
+   :limit {:max 0.00175 :basis "estimate: the wire must stay elastic; sigma_y/E = 350 MPa / 200 GPa for an assumed annealed low-carbon wire (not from a wire datasheet)"}
+   :boundary {:lo 1000.0 :hi 3000.0}}]}
